@@ -1,0 +1,68 @@
+using System;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        int[,] graph = new int[,] { { 0, 7, 5, 0, 0},
+                                    { 7, 0, 3, 5, 0},
+                                    { 5, 3, 0, 0, 4},
+                                    { 0, 5, 0, 0, 6},
+                                    { 0, 0, 4, 6, 0} };
+
+        Algorithm(graph, 0);
+    }
+
+    static int V = 5; // не надо перадавать в функции
+
+    static int Distance(int[] dist, bool[] Set)
+    {
+        int min = int.MaxValue, minIndex = -1;
+
+        for (int v = 0; v < V; v++)
+        {
+            if (Set[v] == false && min >= dist[v])
+            {
+                min = dist[v];
+                minIndex = v;
+            }
+        }
+
+        return minIndex;
+    }
+
+    static void Print(int[] dist)
+    {
+        for (int i = 0; i < V; i++)
+        {
+            Console.WriteLine(i + ": " + dist[i]);
+        }
+    }
+
+    static void Algorithm(int[,] graph, int cur)
+    {
+        int[] dist = new int[V];
+        bool[] Set = new bool[V];
+
+        for (int i = 0; i < V; i++)
+        {
+            dist[i] = int.MaxValue;
+            Set[i] = false;
+        }
+
+        dist[cur] = 0;
+
+        for (int count = 0; count < V - 1; count++)
+        {
+            int u = Distance(dist, Set);
+            Set[u] = true;
+
+            for (int v = 0; v < V; v++)
+            {
+                if (!Set[v] && graph[u, v] != 0 && dist[u] != int.MaxValue && dist[u] + graph[u, v] < dist[v])
+                    dist[v] = dist[u] + graph[u, v];
+            }
+        }
+        Print(dist);
+    }
+}
