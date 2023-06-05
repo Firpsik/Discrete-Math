@@ -1,0 +1,102 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+
+class Edge
+{
+    public int From { get; set; }
+    public int To { get; set; }
+    public int Capacity { get; set; }
+    public int Flow { get; set; }
+
+    public Edge(int from, int to, int capacity)
+    {
+        From = from;
+        To = to;
+        Capacity = capacity;
+        Flow = 0;
+    }
+}
+
+class FordFulkerson
+{
+    private List<Edge>[] graph;
+    private bool[] visited;
+
+    public FordFulkerson(int n)
+    {
+        graph = new List<Edge>[n];
+        for (int i = 0; i < n; i++)
+            graph[i] = new List<Edge>();
+    }
+
+    public void AddEdge(int from, int to, int capacity)
+    {
+        Edge e1 = new Edge(from, to, capacity);
+        Edge e2 = new Edge(to, from, 0);
+        e1.Flow = capacity;
+        graph[from].Add(e1);
+        graph[to].Add(e2);
+    }
+
+    private int Dfs(int node, int flow, int t)
+    {
+        if (node == t)
+            return flow;
+        visited[node] = true;
+        foreach (Edge e in graph[node])
+        {
+            if (!visited[e.To] && e.Capacity > 0)
+            {
+                int f = Dfs(e.To, Math.Min(flow, e.Capacity), t);
+                if (f > 0)
+                {
+                    e.Capacity -= f;
+                    e.Flow += f;
+                    return f;
+                }
+            }
+        }
+        return 0;
+    }
+
+    public int MaxFlow(int s, int t)
+    {
+        int flow = 0;
+        visited = new bool[graph.Length];
+        StreamReader file = new StreamReader("TEST.txt");
+
+        string line;
+        while ((line = file.ReadLine()) != null) // imba!!
+        {
+            string[] parts = line.Split(' ');
+            int from = int.Parse(parts[0]) - 1;
+            int to = int.Parse(parts[1]) - 1;
+            int capacity = int.Parse(parts[2]);
+            AddEdge(from, to, capacity);
+        }
+        while (true)
+        {
+            Array.Clear(visited, 0, visited.Length);
+            int f = Dfs(s, int.MaxValue, t);
+            if (f == 0)
+                break;
+            flow += f;
+        }
+
+        Console.WriteLine("Максимальный поток: " + flow);
+
+        file.Close();
+        return flow;
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        List<int[]> edges = new List<int[]>();
+        FordFulkerson ff = new FordFulkerson(edges.Count);
+        int maxFlow = ff.MaxFlow(0, 7);
+    }
+}
